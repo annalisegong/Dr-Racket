@@ -1,0 +1,13 @@
+#lang racket
+(define variable_env '((a 1) (b 2) (c 33)))
+(define resolve (lambda (variable_name variable_env)
+    (cond
+      ((null? variable_env) (print "error: no element in variable environment"))
+      ((eq? (car (car variable_env)) variable_name) (car (cdr (car variable_env))))
+      (else (resolve variable_name (cdr variable_env)))
+      )
+    )
+)
+
+(resolve 'a variable_env)
+(resolve ''a variable_env)
