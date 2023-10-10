@@ -1,6 +1,4 @@
 #lang racket
-(require "Parser.rkt")
-(define variable_env '(((a 1)(b 2)(c 33)(d "string")(e a))))
 
 (define resolve_scope (lambda (variable_name scope)
                   (cond
@@ -9,7 +7,9 @@
                     (else (resolve_scope variable_name (cdr scope)))
                     )
                   )
-  )
+  )#lang racket
+(define variable_env '(((a 1)(b 2)(c 33)(d "string")(e a))))
+
 
 (define resolve (lambda (variable_name)
                   (if
@@ -47,7 +47,6 @@
   )
   )
 
-
 ;(parser 'a) -> (var-exp a)
 ;(parser '(function (x) x)) -> (func-exp ((var-exp x)) (var-exp x))
 ;(parser '(call (function (x) x) a)) -> (app-exp (func-exp ((var-exp x)) (var-exp x)) (var-exp a))
@@ -77,27 +76,25 @@
                  )
   )
 
+(parser '(call (function (x) x) a))
+
 ;(processor (var-exp a)) -> (resolve a variable_env) -> 1
-;(processor (app-exp (func-exp ((var-exp x)) (var-exp x)) (var-exp a))
 (define processor (lambda (parse variable_env)
                     (cond
                       ((null? parse) (print "Processing failed. Bad parsed syntax."))
                       ((eq? (car parse) 'var-exp) (resolve (cadr parse)))
-                      ((eq? (car parse) 'app-exp)
-                       (car (cadr (cadr parse)))
-                       )
+                      ((eq? (car parse) 'app-exp) (print "more to do"))
                       (else "Processing failed. Unknown issue.")
                       )
                     )
   )
+
+(processor (parser 'a) variable_env)
 
 (define executor (lambda (code)
                    (processor (parser code) variable_env)
                    )
   )
 
-(parser '(call (function (x) x) a))
-(processor (parser 'a) variable_env)
-(executor '(call (function (x) x) a))
 
-(provide (all-defined-out))
+;(executor '(call (function (x) z) a))
