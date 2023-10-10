@@ -37,4 +37,16 @@
    )
   )
 
+;iterate through each item in list until true or false returned
+(define is_in_list
+  (lambda (lst item)
+    (cond
+      ((null? lst) #f) ;if list is empty, return false
+      ((eq? (car lst) item) #t) ;if first item in lst == item return true
+      (else (is_in_list (cdr lst) item)) ;else, check remainder of list
+      )
+    )
+  )
+                
+
 (provide (all-defined-out))

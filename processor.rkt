@@ -34,6 +34,62 @@
     )
   )
 
+;bool-exp == (var-exp x) (num-exp 1) -> (operator x 1) -> #t or #f
+(define process_bool_exp
+  (lambda (parsedCode env)
+    (cond
+      ((eq? '< (cadr parsedCode))
+       (< (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+      ((eq? '> (cadr parsedCode))
+       (> (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+      ((eq? '<= (cadr parsedCode))
+       (<= (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+      ((eq? '>= (cadr parsedCode))
+       (>=(processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+      ((eq? '== (cadr parsedCode))
+       (eq? (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+      ((eq? 'and (cadr parsedCode))
+       (and (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+      ((eq? '|| (cadr parsedCode))
+       (or (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+      ((eq? '! (cadr parsedCode))
+       (not (processor (caddr parsedCode) env)))
+      ((eq? '!= (cadr parsedCode))
+       (not (eq? (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env))))
+      (else (println "Error: bad boolean expression"))
+      )
+    )
+  )
+
+;ask ( == x 1) true-exp false-exp -> (if == x 1) -> true-exp or false-exp
+(define process_ask_exp
+  (lambda (parsedCode env)
+    (if
+     (processor (cadr parsedCode) env)
+     (processor (caddr parsedCode) env)
+     (processor (cadddr parsedCode) env))
+    )
+  )
+
+;math
+(define process_math_exp
+  (lambda (parsedCode env)
+    (cond
+      ((eq? '+ (cadr parsedCode))
+       (+ (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+       ((eq? '- (cadr parsedCode))
+       (- (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+       ((eq? '/ (cadr parsedCode))
+       (/ (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+       ((eq? '// (cadr parsedCode))
+       (/ (/ (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env))))
+       ((eq? '% (cadr parsedCode))
+       (modulo (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+       (else (println "Error: bad math expression"))
+     )
+    )
+  )
+
 ;processor finds the variable, then bounds the identifier to the resolved variable value
 ;processor (var-exp a)) -> (resolve a variable_env -> 1
 ;processor (app-exp (func-exp ((var-exp x)) (var-exp x)) (var-exp xa))
@@ -59,7 +115,14 @@
       ((eq? 'body-exp (car parsedCode))
        (process_var_exp parsedCode env))
       ;when parsedCode is boolean exp
-      
+      ((eq? 'bool-exp (car parsedCode))
+       (process_bool_exp parsedCode env))
+      ;when parsedCode is asked expression
+      ((eq? 'ask-exp (car parsedCode))
+       (process_ask_exp parsedCode env))
+      ;when parsedCode is math expression
+      ((eq? 'math-exp (car parsedCode))
+       (process_math_exp parsedCode env))
       ;otherwise
       (else #f)
     )
