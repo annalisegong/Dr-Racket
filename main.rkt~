@@ -1,0 +1,32 @@
+#lang racket
+(require "utility.rkt")
+(require "parser.rkt")
+(require "processor.rkt")
+
+
+(define var_env
+  '(;environment
+   (;global variable scope
+    (a 1) (b 2) (c 3)
+   )))
+
+(define parsed '(call (function (x y) (* x y)) (5)))
+
+  ;(parser '(call (function (x) (ask (== a 1) (+ x 1) (2)))))
+(parser parsed)
+;(processor (parser parsed) var_env))
+
+;(call (function (x y) (* x y) (5))
+;parsed -> (app-exp (func-exp ((var-exp x) (var-exp y)) (math-exp * (var-exp x) (var-exp y))) ((num-exp 5))
+
+;(define execute
+ ; (lambda (code)
+  ;  (processor (parser code) var_env)
+   ; )
+  ;) 
+
+;(parser '(call (function (x) x) a))
+;expected output: (app-exp (func-exp (params x) (body-exp x) (var-exp a)))
+
+;(execute '(call (function (x) x) a))
+;expected output: 1

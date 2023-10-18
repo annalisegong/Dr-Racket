@@ -16,9 +16,9 @@
     (let
         (
          (local_env
-          (push_var_to_env
-           (cadr (car (cadr (cadr parsedCode))))
-           (processor (caddr parsedCode) env)
+          (push_vars_to_env
+           (map (lambda (arg) (cadr arg)) (cdr (car (cadr (cadr parsedCode)))))
+           (map (lambda (val-exp) (processor val-exp env)) (cdr (caddr parsedCode)))
            env)
           )
          )
@@ -45,10 +45,10 @@
       ((eq? '<= (cadr parsedCode))
        (<= (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
       ((eq? '>= (cadr parsedCode))
-       (>=(processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+       (>= (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
       ((eq? '== (cadr parsedCode))
        (eq? (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
-      ((eq? 'and (cadr parsedCode))
+      ((eq? '&& (cadr parsedCode))
        (and (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
       ((eq? '|| (cadr parsedCode))
        (or (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
@@ -79,10 +79,12 @@
        (+ (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
        ((eq? '- (cadr parsedCode))
        (- (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+       ((eq? '* (cadr parsedCode))
+       (* (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
        ((eq? '/ (cadr parsedCode))
-       (/ (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
+       (quotient (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
        ((eq? '// (cadr parsedCode))
-       (/ (/ (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env))))
+       (/ (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
        ((eq? '% (cadr parsedCode))
        (modulo (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
        (else (println "Error: bad math expression"))
@@ -108,12 +110,6 @@
       ;when parsedCode is numeric exp
       ((eq? 'num-exp (car parsedCode))
        (process_num_exp parsedCode env))
-      ;when parsedCode is params
-      ((eq? 'params (car parsedCode))
-       (process_var_exp parsedCode env))
-      ;when parsedCode is body expression
-      ((eq? 'body-exp (car parsedCode))
-       (process_var_exp parsedCode env))
       ;when parsedCode is boolean exp
       ((eq? 'bool-exp (car parsedCode))
        (process_bool_exp parsedCode env))
