@@ -7,13 +7,18 @@
 (define var_env
   '(;environment
    (;global variable scope
-    (a 1) (b 2) (c 3)
+    (a 1) (b 3) (c 5)
    )))
 
 (define parsed
-  '(call (function(x) (let ((d 10) (f 20)) (+ d (+ f x)))) (5))
+  '(call (function (x y) (* x y)) (5 3))
   )
+
 (parser parsed)
+
+(processor (parser '(call (function (x y) (* x y)) (b c))) var_env)
+
+
 ;'(call (function (x y) (* x y)) (5)))
 
 ;(processor (parser parsed) var_env)

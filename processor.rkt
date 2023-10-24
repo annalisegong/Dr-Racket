@@ -18,7 +18,8 @@
          (local_env
           (push_vars_to_env
            (map (lambda (arg) (cadr arg)) (cdr (car (cadr (cadr parsedCode)))))
-           (map (lambda (val-exp) (processor val-exp env)) (cdr (caddr parsedCode)))
+           (map (lambda (val-exp) (processor val-exp env))
+                (cdr (caddr parsedCode)))
            env)
           )
          )

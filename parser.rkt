@@ -26,7 +26,7 @@
 ;check math operators
 (define check_math
   (lambda (op)
-    (is_in_list (list '+ '- '/ '// '%) op)
+    (is_in_list (list '+ '- '* '/ '// '%) op)
     )
   )
 
@@ -104,7 +104,7 @@
         (eq? 'let (car statement))
         (eq? (length statement) 3))
         (list 'let-exp
-              (cons 'list-exp (map (lambda (pair) (map (lambda (item) (parser item)) pair))(cadr statement)))
+              (cons 'list-exp (map (lambda (pair) (map (lambda (item) (parser item)) pair)) (cadr statement)))
               (parser (caddr statement)))
         )
       
