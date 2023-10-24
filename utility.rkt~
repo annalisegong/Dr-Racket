@@ -37,6 +37,32 @@
    )
   )
 
+;push_vars_to_env (x y z) (1 2 3) -> '((x 1) (y 2) (z 3)) env
+(define push_vars_to_env
+  (lambda (list_var list_value env)
+    (cons (pair_helper list_var list_value) env)
+   )
+  )
+
+;add variable and value pairs to current scope
+(define add_vars_to_top_scope
+  (lambda (list_var list_value env)
+    (cons
+     (append (pair_helper (list_var list_value) (car env)))
+     (cdr env))
+  )
+ )
+
+;pair_helper (x) (1) -> (x 1)
+(define pair_helper
+  (lambda (list_var list_value)
+    (if
+     (null? list_var) '()
+     (cons (list (car list_var) (car list_value)) (pair_helper (cdr list_var) (cdr list_value)))
+     )
+    )
+  )
+
 ;iterate through each item in list until true or false returned
 (define is_in_list
   (lambda (lst item)
@@ -47,6 +73,5 @@
       )
     )
   )
-                
 
 (provide (all-defined-out))
