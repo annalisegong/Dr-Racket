@@ -44,15 +44,6 @@
    )
   )
 
-;add variable and value pairs to current scope
-(define add_vars_to_top_scope
-  (lambda (list_var list_value env)
-    (cons
-     (append (pair_helper list_var list_value) (car env))
-     (cdr env))
-  )
- )
-
 ;pair_helper (x) (1) -> (x 1)
 (define pair_helper
   (lambda (list_var list_value)

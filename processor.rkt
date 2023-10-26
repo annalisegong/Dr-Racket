@@ -92,6 +92,23 @@
      )
     )
   )
+;let-exp
+;(list-exp ((var-exp d) (num-exp 10)) (var-exp f) (num-exp 20)))
+;(math-exp + (var-exp d) (math-exp + (var-exp f) (var-exp x))
+(define process_let_exp
+  (lambda (parsedCode env)
+    (let*
+        (
+         (varname_value_list ; = ((d 10) (f 20))
+          (map (lambda (pair)
+                 (list (cadr (car pair)) (processor (cadr pair) env)))
+               (cdr (cadr parsedCode))))
+        ; top scope: ((d 10) (f 20)) + ((x 5)) local scope: ((a 1) (b 2) (c 3)) 
+        (let_local_env (cons (append varname_value_list (car env)) (cdr env))))
+    (processor (caddr parsedCode) let_local_env)
+    )
+  )
+)
 
 ;processor finds the variable, then bounds the identifier to the resolved variable value
 ;processor (var-exp a)) -> (resolve a variable_env -> 1
@@ -120,6 +137,9 @@
       ;when parsedCode is math expression
       ((eq? 'math-exp (car parsedCode))
        (process_math_exp parsedCode env))
+      ;when parsedCode is let expression
+      ((eq? 'let-exp (car parsedCode))
+       (process_let_exp parsedCode env))
       ;otherwise
       (else #f)
     )

@@ -10,21 +10,9 @@
     (a 1) (b 3) (c 5)
    )))
 
-(define parsed
-  '(call (function (x y) (* x y)) (5 3))
-  )
+(define code
+  '(call (function(x)(let ((a 3) (b 4)) (+ a (+ x b))))(5))
+)
+(define parsed (parser code))
 
-(parser parsed)
-
-(processor (parser '(call (function (x y) (* x y)) (b c))) var_env)
-
-
-;'(call (function (x y) (* x y)) (5)))
-
-;(processor (parser parsed) var_env)
-
-;(define local (push_vars_to_env '(l m) '(5 6) var_env))
-
-;(add_vars_to_top_scope '(x y z) '(99 100 101) local)
-
-;parsed -> (app-exp (func-exp ((var-exp x) (var-exp y)) (math-exp * (var-exp x) (var-exp y))) ((num-exp 5))
+(processor parsed var_env)
