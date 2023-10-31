@@ -11,7 +11,7 @@
    )))
 
 (define code
-  '(call (function(x)(let ((a 3) (b 4)) (+ a (+ x b))))(5))
+  '(call (function (a) (call (function (r) a) (a))) (5))
 )
 (define parsed (parser code))
 

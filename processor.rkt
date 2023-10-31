@@ -13,14 +13,15 @@
 (define process_app_exp
   (lambda
       (parsedCode env)
-    (let
+    (let*
         (
+         (global_env (trim_to_global_scope env));this env only has global scope
          (local_env
           (push_vars_to_env
            (map (lambda (arg) (cadr arg)) (cdr (car (cadr (cadr parsedCode)))))
            (map (lambda (val-exp) (processor val-exp env))
                 (cdr (caddr parsedCode)))
-           env)
+           global_env)
           )
          )
       (processor (caddr (cadr parsedCode)) local_env)
