@@ -13,13 +13,15 @@
 (define process_app_exp
   (lambda
       (parsedCode env)
-    (let
+    (let*
         (
+         (global_env (trim_to_global_scope env));this env only has global scope
          (local_env
           (push_vars_to_env
            (map (lambda (arg) (cadr arg)) (cdr (car (cadr (cadr parsedCode)))))
-           (map (lambda (val-exp) (processor val-exp env)) (cdr (caddr parsedCode)))
-           env)
+           (map (lambda (val-exp) (processor val-exp env))
+                (cdr (caddr parsedCode)))
+           global_env)
           )
          )
       (processor (caddr (cadr parsedCode)) local_env)
@@ -56,7 +58,7 @@
        (not (processor (caddr parsedCode) env)))
       ((eq? '!= (cadr parsedCode))
        (not (eq? (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env))))
-      (else (println "Error: bad boolean expression"))
+      (else (error-output "Bad boolean expression"))
       )
     )
   )
@@ -87,10 +89,78 @@
        (/ (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
        ((eq? '% (cadr parsedCode))
        (modulo (processor (caddr parsedCode) env) (processor (cadddr parsedCode) env)))
-       (else (println "Error: bad math expression"))
+       (else (error-output "Bad math expression"))
      )
     )
   )
+;let-exp
+;(list-exp ((var-exp d) (num-exp 10)) (var-exp f) (num-exp 20)))
+;(math-exp + (var-exp d) (math-exp + (var-exp f) (var-exp x))
+(define process_let_exp
+  (lambda (parsedCode env)
+    (let*
+        (
+         (varname_value_list ; = ((d 10) (f 20))
+          (map (lambda (pair)
+                 (list (cadr (car pair)) (processor (cadr pair) env)))
+               (cdr (cadr parsedCode))))
+        ; top scope: ((d 10) (f 20)) + ((x 5)) local scope: ((a 1) (b 2) (c 3)) 
+        (let_local_env (cons (append varname_value_list (car env)) (cdr env))))
+    (processor (caddr parsedCode) let_local_env)
+    )
+  )
+)
+
+;assign
+(define process_assign_exp
+  (lambda (varname value env)
+    ;check env has varname 
+    (let (
+          (found (is_in_list (combine(extract_varname_from_env env)) varname))
+          (var_val_pair (list varname value)))
+      (if found
+          ;- if yes, update env; 
+          (set! env '())
+          ;if no, add new var-value pair to current env
+          (set! env (cons (cons var_val_pair (car env)) (cdr env)))
+     )
+    )
+  ))
+
+;(((a 1) (b 2) (c 3)) (z 10) (y 5) (z 7)) (m 6) (o 8))) -> ((a b c) (x y z) (m o))
+(define extract_varname_from_env
+  (lambda (env)
+    (map (lambda (scope)
+           (map (lambda (pair)
+                  (car pair)))
+           env))
+    )
+  )
+
+; ((a b c) (x y z) (m o)) -> ((a b c x y z m o))
+(define combine
+  (lambda (list_of_lists)
+    (cond
+     ((null? list_of_lists) '())
+     ((eq? (length list_of_lists) 1) (car list_of_lists))
+     ;check if the second item is empty, if not, move first item of second list to first list
+     ;otherwise, remove the second list when it's empty
+     ((null? (cadr list_of_lists)) (combine (cons (car list_of_lists) (cddr list_of_lists))))
+     (else
+      (combine
+            (cons (cons (car (cadr list_of_lists)) (car list_of_lists))
+                          (cons (cdr (cadr list_of_lists) (cddr list_of_lists))))))
+    )
+  )
+)
+
+;((a 1) (b 2) (c 3))
+; (update_variable_in_scope a 5) -> ((a 5) (b 2) (c 3))
+(define update_variable_in_scope
+  (lambda (varname value scope count)
+    (print "todo")
+  )
+)
 
 ;processor finds the variable, then bounds the identifier to the resolved variable value
 ;processor (var-exp a)) -> (resolve a variable_env -> 1
@@ -100,7 +170,7 @@
     (cond
       ;when parsedCode is empty
       ((null? parsedCode)
-       (displayln "Error: processor received illegal parsed code"))
+       (error-output "Processor received illegal parsed code"))
       ;when parsedCode is a var exp
       ((eq? 'var-exp (car parsedCode))
        (process_var_exp parsedCode env))
@@ -119,8 +189,21 @@
       ;when parsedCode is math expression
       ((eq? 'math-exp (car parsedCode))
        (process_math_exp parsedCode env))
+      ;when parsedCode is let expression
+      ((eq? 'let-exp (car parsedCode))
+       (process_let_exp parsedCode env))
+      ;when parsedCode is assign expression
+      ((eq? 'assign-exp (car parsedCode))
+        (print "to do"))    
+      ;when parsedCode is output expression
+      ((eq? 'output-exp (car parsedCode))
+       (display (string-append "*** output ***: "(number->string (processor (cadr parsedCode) env)))))
+      ;block
+      ((eq? 'block-exp (car parsedCode))
+       (pick_first_non_void_from_list
+        (map (lambda (code) (processor code env)) (cdr parsedCode))))
       ;otherwise
-      (else #f)
+      (else (error-output "Processor failed to produce result"))
     )
   )
 )

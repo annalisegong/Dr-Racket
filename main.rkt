@@ -7,12 +7,17 @@
 (define var_env
   '(;environment
    (;global variable scope
-    (a 1) (b 3) (c 5)
+    (a 1) (b 2) (c 3)
    )))
 
 (define code
-  '(call (function (a) (call (function (r) a) (a))) (5))
+  ;'(block (assign x 10) (out x))
+  '(while (< a 4) ((let (a (+ a 1)) (out a))))
 )
-(define parsed (parser code))
 
+(processor (parser '(out a)) var_env)
+(println "")
+
+(define parsed (parser code))
+ parsed
 (processor parsed var_env)

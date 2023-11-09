@@ -4,7 +4,7 @@
 (define resolve_env
   (lambda (var_name env)
     (cond
-      ((null? env) (print "Error: variable not found"))
+      ((null? env) (error-output "Variable not found"))
       ((eq? #f (resolve_scope var_name (car env)))
        (resolve_env var_name (cdr env)))
       (else
@@ -49,7 +49,7 @@
 (define trim_to_global_scope
   (lambda (env)
     (cond
-      ((not (pair? env)) (print "illegal env passed into trim function"))
+      ((not (pair? env)) (error-output "Illegal env passed into trim function"))
       ((eq? 1 (length env)) env)
       (else (trim_to_global_scope (cdr env)))
      )
@@ -76,5 +76,24 @@
       )
     )
   )
+
+;display error message with corresponding error from output
+(define error-output
+  (lambda (output)
+    (displayln (string-append "*** error *** " output))
+    )
+  )
+
+;remove #void from display in 'out processor
+(define pick_first_non_void_from_list
+  (lambda (lst)
+    (cond
+      ((not (pair? lst)) (error-output "received invalid parameter for a list"))
+      ((and (pair? lst) (eq? (length lst) 1) (void? (car lst))) (display ""))
+      ((void? (car lst)) (pick_first_non_void_from_list (cdr lst)))
+      (else (car lst))
+   )
+  )
+)
 
 (provide (all-defined-out))
