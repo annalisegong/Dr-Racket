@@ -11,13 +11,11 @@
    )))
 
 (define code
-  ;'(block (assign x 10) (out x))
-  '(while (< a 4) ((let (a (+ a 1)) (out a))))
-)
+  '(each (a 0) (> 5 a) (a (+ a 1)) ((out a)))
+ )
 
-(processor (parser '(out a)) var_env)
-(println "")
 
 (define parsed (parser code))
- parsed
+parsed
+
 (processor parsed var_env)

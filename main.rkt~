@@ -11,9 +11,11 @@
    )))
 
 (define code
-  '(when (< a 5)(block (out a) (let ((a (+ a 1))))))
-)
+  '(each (a 0) (< 5 a) (a (+ a 1)) ((out a)))
+ )
+
 
 (define parsed (parser code))
 parsed
-(processor parsed var_env)
+
+;(processor parsed var_env)

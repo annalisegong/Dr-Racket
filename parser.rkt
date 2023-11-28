@@ -131,7 +131,7 @@
               (parser (caddr statement)))
         )
 
-      ;this is assign exp to update/create new local var
+      ;assign exp to update/create new local var
       ((and
         (list? statement)
         (eq? 'assign (car statement))
@@ -143,6 +143,22 @@
             (parser (caddr statement))
             )
         ))
+
+      ;each exp = while loop 
+      ((and
+        (pair? statement)
+        (eq? 'each (car statement))
+        (eq? (length statement) 5))
+        (list 'each-exp
+              (list 'assign-exp (list (parser (car (cadr statement))) (parser (cadr (cadr statement)))))
+              (list 'each-body-exp
+                    (parser (caddr statement))
+                    (list 'assign-exp (list (parser (car (cadddr statement))) (parser (cadr (cadddr statement)))))
+                    (cons 'each-list-exp (map (lambda (item) (parser item)) (cadr (cdddr statement))))
+                    )
+              )
+        )
+        
       ;block expression - contains multiple statements in list
        ((and
          (pair? statement)

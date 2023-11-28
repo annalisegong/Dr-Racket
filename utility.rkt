@@ -84,6 +84,12 @@
     )
   )
 
+(define display-output
+  (lambda (output)
+    (displayln (string-append "*** display *** " output))
+    )
+  )
+
 ;remove #void from display in 'out processor
 (define pick_first_non_void_from_list
   (lambda (lst)
